@@ -2,7 +2,9 @@ from flask import Flask, request, render_template, url_for, flash, redirect
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from werkzeug.security import generate_password_hash, check_password_hash
+from sqlalchemy_utils import UUIDType
 import os
+import uuid
 
 # SQLAlchemy.
 pg_user = os.getenv("POSTGRES_USER", "postgres")
@@ -24,15 +26,35 @@ app.config["SECRET_KEY"] = "your-secret-key"
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
+# Base model class for all models
+class BaseModel(db.Model):
+    """
+        Base model of the mapping class inheritace 
+
+        https://docs.sqlalchemy.org/en/14/orm/inheritance.html
+    """
+
+    __abstract__ = True
+
+    STATUS_CHOICES = ["Active", "Disabled", "Deleted"]
+
+    id = db.Column(UUIDType(binary=False), primary_key=True, default=uuid.uuid4)
+    name = db.Column(db.String(255), nullable=False)
+    extra = db.Column(db.JSON(), nullable=True)
+    status = db.Column(
+        db.Enum(*STATUS_CHOICES, name="status", native_enum=False),
+        nullable=False,
+        default="active"
+    )
 
 # User Model
-class User(db.Model):
+class User(BaseModel):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     password = db.Column(db.String(520), nullable=False)
 
 
-class Student(db.Model):
+class Student(BaseModel):
     id = db.Column(db.Integer, primary_key=True)
     student_name = db.Column(db.String(200), nullable=False)
     student_age = db.Column(db.Integer, nullable=True)
@@ -78,7 +100,8 @@ def register():
             # create a new user
             new_user = User(
                 username=username,
-                password=generate_password_hash(password),
+                password=password,
+                name=username,
             )
             db.session.add(new_user)
             db.session.commit()
