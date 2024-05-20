@@ -1,18 +1,14 @@
 import os
-import psycopg2;
 
 # Get the environment variables
-DB_USER = os.getenv('POSTGRES_USER', "postgres")
-DB_PASSWORD = os.getenv('POSTGRES_PASSWORD', "postgres")
-# DB_HOST = os.getenv('POSTGRES_HOST', "postgres")
-DB_PORT = os.getenv('POSTGRES_PORT', "5432")
-DB_NAME = os.getenv('POSTsGRES_DB', "demodb")
+pg_user = os.getenv('POSTGRES_USER', "muhammedshafaf")
+pg_pass = os.getenv('POSTGRES_PASSWORD', "postgres")
+pg_host = os.getenv('POSTGsRES_HOST', "localhost")
+pg_port = os.getenv('POSTGRES_PORT', "5432")
+pg_db = os.getenv('POSTsGRES_DB', "demodb")
 
-# database connection login
-conn = psycopg2.connect(
-    dbname=DB_NAME,
-    user=DB_USER,
-    password=DB_PASSWORD,
-    port=DB_PORT
+
+SQLALCHEMY_DATABASE_URI = os.getenv(
+    "DATABASE_URL",
+    f"postgresql://{pg_user}:{pg_pass}@{pg_host}:{pg_port}/{pg_db}",
 )
-
