@@ -50,6 +50,6 @@ class Plans(MethodView):
         db.session.add(plan)
         db.session.commit()    
         
-        return jsonify({"id": plan.id})
+        return jsonify({"id": plan.id}), 201
 
 v1.add_url_rule("/plan", view_func=Plans.as_view("plan"))

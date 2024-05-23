@@ -21,6 +21,7 @@ class Subscription(db.Model):
     plan_id = Column(Integer, ForeignKey(Plan.id), nullable=False)
     razorpay_user_id = Column(String)
     subscription_id = Column(String)
+    user_id = Column(Integer, ForeignKey("user.id"), nullable=True)
     subscription_status = Column(
         Enum(*STATUS_CHOICES, name="status", native_enum=False),
         nullable=False,
