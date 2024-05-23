@@ -2,38 +2,54 @@ from flask import jsonify, request
 from flask.views import MethodView
 
 from . import v1
-# from model.subscription import Plan
+from model.subscription import Plan
+
 from extension import db
 
-# test v1 api endpoint.
-class Plan(MethodView):
+class Plans(MethodView):
     def get(self):
-        return jsonify({"test": "This is plan api"}), 200
+        plans = Plan.query.all()
+        plans_data = [
+            {
+                "id": plan.id,
+                "name": plan.name,
+                "description": plan.description,
+                "amount": plan.amount,
+                "intervals": plan.intervals,
+                "plan_id": plan.plan_id
+            }
+            for plan in plans
+        ]
+        
+        return jsonify(plans_data), 200
     
     def post(self):
         req :dict = request.get_json()
-        username = req.get("name")
-        if username is None:
+        
+        plan_name = req.get("name")
+        plan_amount = req.get("amount")
+        plan_interval = req.get("interval")
+        
+        if plan_name is None:
             return jsonify({"message": "name is required"}), 400
         
-        email = req.get("email")
-        if email is None:
-            return jsonify({"message": "email is required"}), 400
-        # user = Plan(
-        #     username=username,
-        #     email=email
-        # )
+        if plan_amount is None:
+            return jsonify({"message": "amount is required"}), 400
+          
+        if plan_interval is None:
+            return jsonify({"message": "interval is required"}), 400
         
-        print("start")
-        print(username)
-        print(email)
-        print("end")
+        plan = Plan(
+            name=plan_name,
+            description=req.get("description"),
+            amount=plan_amount,
+            intervals=plan_interval,
+            plan_id=req.get("plan_id")
+        )
         
-        # db.session.add(user)
-        # db.session.commit()
+        db.session.add(plan)
+        db.session.commit()    
         
-        print(user.id)
-        
-        return jsonify({"status": True})
+        return jsonify({"id": plan.id})
 
-v1.add_url_rule("/plan", view_func=Plan.as_view("plan"))
+v1.add_url_rule("/plan", view_func=Plans.as_view("plan"))
