@@ -1,8 +1,6 @@
 <div align="center">
   <h1><code>Razorpay Python Client </code></h1> 
-  <p><strong><em>Python bindings for interacting with the Razorpay API
-
-This is primarily meant for merchants who wish to perform interactions with the Razorpay API programatically.</em></strong></p>
+  <!-- <p><strong><em>Python bindings for interacting with the Razorpay API This is primarily meant for merchants who wish to perform interactions with the Razorpay API programatically.</em></strong></p> -->
 </div>
 
 ---

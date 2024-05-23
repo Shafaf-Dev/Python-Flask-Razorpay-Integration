@@ -3,8 +3,8 @@ from flask.views import MethodView
 
 from . import v1
 from model.subscription import Plan
+from extension import db, client
 
-from extension import db
 
 class Plans(MethodView):
     def get(self):
@@ -13,10 +13,13 @@ class Plans(MethodView):
             {
                 "id": plan.id,
                 "name": plan.name,
+                "period" : plan.period,
+                "currency" : plan.currency,
                 "description": plan.description,
                 "amount": plan.amount,
                 "intervals": plan.intervals,
-                "plan_id": plan.plan_id
+                "plan_id": plan.plan_id,
+                "notes" : plan.notes
             }
             for plan in plans
         ]
@@ -29,6 +32,8 @@ class Plans(MethodView):
         plan_name = req.get("name")
         plan_amount = req.get("amount")
         plan_interval = req.get("interval")
+        plan_period = req.get("period")
+        currency = req.get("currency")
         
         if plan_name is None:
             return jsonify({"message": "name is required"}), 400
@@ -38,18 +43,39 @@ class Plans(MethodView):
           
         if plan_interval is None:
             return jsonify({"message": "interval is required"}), 400
-        
-        plan = Plan(
-            name=plan_name,
-            description=req.get("description"),
-            amount=plan_amount,
-            intervals=plan_interval,
-            plan_id=req.get("plan_id")
-        )
-        
-        db.session.add(plan)
-        db.session.commit()    
-        
-        return jsonify({"id": plan.id}), 201
+    
+
+        try:
+            plan = client.plan.create({
+                "period": plan_period,
+                "interval": plan_interval,
+                "item": {
+                    "name": plan_name,
+                    "amount": plan_amount,
+                    "currency": currency,
+                    "description": req.get("description")
+                },
+                "notes": req.get("notes")
+            })
+            
+            plan = Plan(
+                name=plan_name,
+                period=plan_period,
+                currency=currency,
+                description=req.get("description"),
+                amount=plan_amount,
+                intervals=plan_interval,
+                plan_id=plan["id"],
+                notes=req.get("notes")
+            )
+            
+            db.session.add(plan)
+            db.session.commit()    
+            
+            return jsonify({"id": plan.id}), 201
+            
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({"error": str(e)}), 500
 
 v1.add_url_rule("/plan", view_func=Plans.as_view("plan"))
