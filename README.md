@@ -14,7 +14,7 @@
 ## Installation
 1. Clone the repository
 ```
-  git clone https://github.com/Muhammad-Shafaf123/Python-Flask-Razorpay-Integration.git
+  git clone https://github.com/Shafaf-Dev/Python-Flask-Razorpay-Integration.git
 ```
 2. Install the dependencies
 ```
